@@ -17,6 +17,7 @@ const {
   cancelEditing,
   startNewSegment,
   selectSegmentForEditing,
+  deleteSegment
 } = useSegments();
 
 const { map, mapService } = useMap(mapContainer, allFeatures);
@@ -74,8 +75,9 @@ onMounted(() => {
       <button v-if="!isEditing" type="submit" :disabled="!startPoint">Сохранить сегмент</button>
 
       <div v-if="isEditing" class="editing-controls">
-        <button type="submit" :disabled="!isFormDirty">Сохранить</button>
         <button type="button" @click="cancelEditing">Отменить</button>
+        <button class="delete-button" type="button" @click="deleteSegment">Удалить</button>
+        <button class="save-button" type="submit" :disabled="!isFormDirty">Сохранить</button>
       </div>
     </form>
   </div>
@@ -99,7 +101,7 @@ onMounted(() => {
   flex-direction: column;
   gap: 15px;
   padding: 10px;
-  width: 250px;
+  min-width: 250px;
 
   h3 {
     margin-top: 0;
@@ -125,10 +127,21 @@ onMounted(() => {
 
   .editing-controls {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
 
     button {
       flex: 1;
+    }
+
+    .delete-button {
+      color: red;
+      border-color: red;
+    }
+
+    .save-button {
+      color: green;
+      border-color: green;
     }
   }
 }

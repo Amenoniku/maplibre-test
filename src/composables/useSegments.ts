@@ -170,6 +170,18 @@ export function useSegments() {
     cancelEditing();
   };
 
+  const deleteSegment = () => {
+    if (editingSegmentId.value === null || !confirm('Вы уверены, что хотите удалить сегмент?')) return;
+    const idx = savedSegments.value.findIndex(
+      (seg) => seg[0]?.properties?.segmentId === editingSegmentId.value
+    );
+    if (idx !== -1) {
+      savedSegments.value.splice(idx, 1);
+    }
+    cancelEditing();
+  };
+
+
   /**
    * Обрабатывает отправку формы, делегируя либо обновление, либо создание сегмента.
    */
@@ -191,5 +203,6 @@ export function useSegments() {
     cancelEditing,
     startNewSegment,
     selectSegmentForEditing,
+    deleteSegment
   };
 }
