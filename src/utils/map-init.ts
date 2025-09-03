@@ -20,7 +20,6 @@ export const mapInit = (map: Map) => {
       'circle-radius': 4,
       'circle-color': '#ff0000',
     },
-    // Исправленный фильтр
     filter: ['all', ['==', 'state', 'preview'], ['==', '$type', 'Point'], ['!has', 'label']],
   });
   map.addLayer({
@@ -60,7 +59,6 @@ export const mapInit = (map: Map) => {
       'circle-radius': 4,
       'circle-color': '#000000',
     },
-    // Исправленный фильтр
     filter: ['all', ['==', 'state', 'saved'], ['==', '$type', 'Point'], ['!has', 'label']]
   });
   map.addLayer({
@@ -89,5 +87,44 @@ export const mapInit = (map: Map) => {
       'text-halo-width': 1,
     },
     filter: ['all', ['==', 'state', 'saved'], ['has', 'label']],
+  });
+
+  // Слои для редактируемого сегмента
+  map.addLayer({
+    id: 'editing-point-layer',
+    type: 'circle',
+    source: SEGMENTS_SOURCE,
+    paint: {
+      'circle-radius': 5,
+      'circle-color': '#00ff00', // Green
+    },
+    filter: ['all', ['==', 'state', 'editing'], ['==', '$type', 'Point'], ['!has', 'label']]
+  });
+  map.addLayer({
+    id: 'editing-line-layer',
+    type: 'line',
+    source: SEGMENTS_SOURCE,
+    paint: {
+      'line-color': '#00ff00', // Green
+      'line-width': 3
+    },
+    filter: ['==', 'state', 'editing'],
+  });
+  map.addLayer({
+    id: 'editing-labels-layer',
+    type: 'symbol',
+    source: SEGMENTS_SOURCE,
+    layout: {
+      'text-field': ['get', 'label'],
+      'text-size': 13,
+      'text-offset': [0, 0],
+      'text-anchor': 'center',
+    },
+    paint: {
+      'text-color': '#00ff00', // Green
+      'text-halo-color': '#000000',
+      'text-halo-width': 1,
+    },
+    filter: ['all', ['==', 'state', 'editing'], ['has', 'label']],
   });
 };
