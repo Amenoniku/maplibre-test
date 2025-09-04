@@ -1,5 +1,5 @@
-import { Map, GeoJSONSource, MapMouseEvent, LngLatLike, Point } from 'maplibre-gl';
-import type { Feature, FeatureCollection, Geometry } from 'geojson';
+import { Map, GeoJSONSource, MapMouseEvent, type LngLatLike, Point } from 'maplibre-gl';
+import type { Feature, Geometry } from 'geojson';
 import { SEGMENTS_SOURCE } from '@/constants/segments';
 
 const LAYER_CONFIGS = {

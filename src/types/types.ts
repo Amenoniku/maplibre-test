@@ -12,15 +12,15 @@ export type SegmentState = 'preview' | 'saved' | 'editing';
  * Свойства, связанные с каждым объектом GeoJSON, который составляет сегмент.
  * Это включает геометрические данные и информацию о состоянии.
  */
-export interface SegmentProperties extends GeoJsonProperties {
-  state: SegmentState;
-  segmentId: number | null;
-  distance: number;
-  azimuth: number;
-  deflection: number;
-  label?: string;
-  type?: 'main' | 'deflected' | 'closing';
-}
+ export type SegmentProperties = {
+   state: SegmentState;
+   segmentId: number | null;
+   distance: number;
+   azimuth: number;
+   deflection: number;
+   label?: string;
+   type?: 'main' | 'deflected' | 'closing';
+ } & GeoJsonProperties;
 
 /**
  * Сегмент представлен в виде коллекции объектов GeoJSON.

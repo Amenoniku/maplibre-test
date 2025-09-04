@@ -1,4 +1,4 @@
-import { shallowRef, onMounted, onUnmounted, watch, ref } from 'vue';
+import { shallowRef, onMounted, onUnmounted, watch, type Ref } from 'vue';
 import type { Map } from 'maplibre-gl';
 import { MapService } from '@/services/mapService';
 import type { Feature, Geometry } from 'geojson';
@@ -12,8 +12,8 @@ import type { Feature, Geometry } from 'geojson';
  * @returns Объект, содержащий экземпляр карты и сервис карты для дальнейшего взаимодействия.
  */
 export function useMap(
-  mapContainer: ref<HTMLElement | null>,
-  features: ref<Feature<Geometry>[]>
+  mapContainer: Ref<HTMLElement | null>,
+  features: Ref<Feature<Geometry>[]>
 ) {
   const map = shallowRef<Map | null>(null);
   const mapService = new MapService();
