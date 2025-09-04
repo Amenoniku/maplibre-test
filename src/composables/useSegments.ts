@@ -1,26 +1,29 @@
-import { ref, computed } from 'vue';
-import { generateSegmentFeatures } from '@/services/segmentService';
+import type { Feature, Point } from 'geojson';
+
+import { computed, ref } from 'vue';
+
 import type {
   Segment,
-  StartPoint,
   SegmentFormData,
   SegmentProperties,
   SegmentState,
+  StartPoint,
 } from '@/types/types';
-import type { Feature, Point } from 'geojson';
+
+import { generateSegmentFeatures } from '@/services/segmentService';
 
 const DEFAULT_FORM_DATA: SegmentFormData = {
-  distance: 500,
   azimuth: 225,
   deflection: 90,
+  distance: 500,
 };
 
 let segmentCounter = 0;
 const savedSegments = ref<Segment[]>([]);
-const editingSegmentId = ref<number | null>(null);
-const startPoint = ref<StartPoint | null>(null);
+const editingSegmentId = ref<null | number>(null);
+const startPoint = ref<null | StartPoint>(null);
 const formData = ref<SegmentFormData>({ ...DEFAULT_FORM_DATA });
-const originalSegmentData = ref<SegmentFormData | null>(null);
+const originalSegmentData = ref<null | SegmentFormData>(null);
 
 /**
  * Vue Composable для управления состоянием и бизнес-логикой сегментов карты.
@@ -51,14 +54,15 @@ export function useSegments() {
    * Создает временный сегмент "предпросмотра" на основе текущей начальной точки и данных формы.
    */
   const previewSegment = computed<Segment>(() => {
-    if (!startPoint.value) return [];
+    if (!startPoint.value) {
+      return [];
+    }
     return generateSegmentFeatures(
       startPoint.value.geometry.coordinates,
       formData.value.distance,
       formData.value.azimuth,
       formData.value.deflection,
-      null,
-      'preview'
+      {id: null, state: 'preview'}
     );
   });
 
@@ -77,8 +81,7 @@ export function useSegments() {
           formData.value.distance,
           formData.value.azimuth,
           formData.value.deflection,
-          editingSegmentId.value,
-          'editing'
+          {id: editingSegmentId.value, state: 'editing'}
         );
       }
       return segment.map((f) => ({
@@ -120,28 +123,31 @@ export function useSegments() {
    * @param props - Свойства сегмента для редактирования.
    */
   const selectSegmentForEditing = (props: SegmentProperties) => {
-    if (typeof props.segmentId !== 'number') return;
+    if (typeof props.segmentId !== 'number') {
+      return;
+    }
     startPoint.value = null;
     editingSegmentId.value = props.segmentId;
 
     const data = {
-      distance: props.distance,
       azimuth: props.azimuth,
       deflection: props.deflection,
+      distance: props.distance,
     };
     formData.value = { ...data };
     originalSegmentData.value = { ...data };
   };
 
   const saveNewSegment = () => {
-    if (!startPoint.value) return;
+    if (!startPoint.value) {
+      return;
+    }
     const segmentToSave = generateSegmentFeatures(
       startPoint.value.geometry.coordinates,
       formData.value.distance,
       formData.value.azimuth,
       formData.value.deflection,
-      segmentCounter,
-      'saved'
+      { id: segmentCounter, state: 'saved' },
     );
     savedSegments.value.push(segmentToSave);
     segmentCounter++;
@@ -151,36 +157,42 @@ export function useSegments() {
 
   const updateExistingSegment = () => {
     const segmentIndex = savedSegments.value.findIndex(
-      (seg) => seg[0]?.properties?.segmentId === editingSegmentId.value
+      (seg) => seg[0]?.properties?.segmentId === editingSegmentId.value,
     );
-    if (segmentIndex === -1) return;
+    if (segmentIndex === -1) {
+      return;
+    }
 
     const segmentToUpdate = savedSegments.value[segmentIndex];
-    const startCoord = (segmentToUpdate[0] as Feature<Point>)?.geometry.coordinates;
+    const startCoord = (segmentToUpdate[0] as Feature<Point>)?.geometry
+      .coordinates;
 
     const updatedSegment = generateSegmentFeatures(
       startCoord,
       formData.value.distance,
       formData.value.azimuth,
       formData.value.deflection,
-      editingSegmentId.value,
-      'saved'
+      { id: editingSegmentId.value, state: 'saved' },
     );
     savedSegments.value.splice(segmentIndex, 1, updatedSegment);
     cancelEditing();
   };
 
   const deleteSegment = () => {
-    if (editingSegmentId.value === null || !confirm('Вы уверены, что хотите удалить сегмент?')) return;
+    if (
+      editingSegmentId.value === null ||
+      !confirm('Вы уверены, что хотите удалить сегмент?')
+    ) {
+      return;
+    }
     const idx = savedSegments.value.findIndex(
-      (seg) => seg[0]?.properties?.segmentId === editingSegmentId.value
+      (seg) => seg[0]?.properties?.segmentId === editingSegmentId.value,
     );
     if (idx !== -1) {
       savedSegments.value.splice(idx, 1);
     }
     cancelEditing();
   };
-
 
   /**
    * Обрабатывает отправку формы, делегируя либо обновление, либо создание сегмента.
@@ -194,15 +206,15 @@ export function useSegments() {
   };
 
   return {
-    formData,
-    startPoint,
     allFeatures,
+    cancelEditing,
+    deleteSegment,
+    formData,
+    handleFormSubmit,
     isEditing,
     isFormDirty,
-    handleFormSubmit,
-    cancelEditing,
-    startNewSegment,
     selectSegmentForEditing,
-    deleteSegment
+    startNewSegment,
+    startPoint,
   };
 }

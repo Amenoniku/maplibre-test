@@ -1,1 +1,1 @@
-export const SEGMENTS_SOURCE = 'segments-source'
+export const SEGMENTS_SOURCE = 'segments-source';

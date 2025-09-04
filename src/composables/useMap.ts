@@ -1,7 +1,9 @@
-import { shallowRef, onMounted, onUnmounted, watch, type Ref } from 'vue';
-import type { Map } from 'maplibre-gl';
-import { MapService } from '@/services/mapService';
 import type { Feature, Geometry } from 'geojson';
+import type { Map } from 'maplibre-gl';
+
+import { onMounted, onUnmounted, type Ref, shallowRef, watch } from 'vue';
+
+import { MapService } from '@/services/mapService';
 
 /**
  * Vue Composable для управления жизненным циклом экземпляра карты MapLibre GL JS.
@@ -13,7 +15,7 @@ import type { Feature, Geometry } from 'geojson';
  */
 export function useMap(
   mapContainer: Ref<HTMLElement | null>,
-  features: Ref<Feature<Geometry>[]>
+  features: Ref<Feature<Geometry>[]>,
 ) {
   const map = shallowRef<Map | null>(null);
   const mapService = new MapService();
@@ -35,7 +37,7 @@ export function useMap(
     (newFeatures) => {
       mapService.updateSource(newFeatures);
     },
-    { deep: true }
+    { deep: true },
   );
 
   return { map, mapService };

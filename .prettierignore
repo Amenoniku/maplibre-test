@@ -1,0 +1,24 @@
+# Ignore artifacts:
+dist
+build
+coverage
+
+# Ignore build output of docs
+docs/dist
+
+# Ignore editor config files
+.idea
+.vscode/*.code-snippets
+
+# Ignore dependencies
+node_modules
+bower_components
+
+# Ignore development data
+.DS_Store
+.env
+.local
+.cache
+.output
+.temp
+.tmp

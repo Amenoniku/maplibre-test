@@ -1,8 +1,10 @@
-import destination from '@turf/destination';
-import centroid from '@turf/centroid';
-import { polygon } from '@turf/helpers';
 import type { Position } from 'geojson';
-import type { Segment, SegmentState, SegmentProperties } from '@/types/types';
+
+import centroid from '@turf/centroid';
+import destination from '@turf/destination';
+import { polygon } from '@turf/helpers';
+
+import type { Segment, SegmentProperties, SegmentState } from '@/types/types';
 
 /**
  * Генерирует объекты GeoJSON, составляющие полный сегмент,
@@ -17,55 +19,76 @@ import type { Segment, SegmentState, SegmentProperties } from '@/types/types';
  * @param state - Текущее состояние сегмента ('preview', 'saved' или 'editing').
  * @returns Массив объектов GeoJSON, представляющих сегмент.
  */
+interface SegmentGenerationOptions {
+  id: null | number;
+  state: SegmentState;
+}
+
 export const generateSegmentFeatures = (
   start: Position,
   dist: number,
   az: number,
   def: number,
-  id: number | null,
-  state: SegmentState
+  options: SegmentGenerationOptions,
 ): Segment => {
-  const mainEnd = destination(start, dist, az, { units: 'kilometers' }).geometry.coordinates;
-  const deflectedEnd = destination(start, dist, az - def, { units: 'kilometers' }).geometry.coordinates;
+  const { id, state } = options;
+
+  const mainEnd = destination(start, dist, az, { units: 'kilometers' }).geometry
+    .coordinates;
+  const deflectedEnd = destination(start, dist, az - def, {
+    units: 'kilometers',
+  }).geometry.coordinates;
 
   const triangle = polygon([[start, mainEnd, deflectedEnd, start]]);
   const centerPoint = centroid(triangle);
 
   const lineDefinitions = [
-    { name: 'main' as const, coords: [start, mainEnd] },
-    { name: 'deflected' as const, coords: [start, deflectedEnd] },
-    { name: 'closing' as const, coords: [mainEnd, deflectedEnd] },
+    { coords: [start, mainEnd], name: 'main' as const },
+    { coords: [start, deflectedEnd], name: 'deflected' as const },
+    { coords: [mainEnd, deflectedEnd], name: 'closing' as const },
   ];
 
   const properties: SegmentProperties = {
-    state,
-    segmentId: id,
-    distance: dist,
     azimuth: az,
     deflection: def,
+    distance: dist,
+    segmentId: id,
+    state,
   };
 
   const points: Segment = [
-    { type: 'Feature', geometry: { type: 'Point', coordinates: start }, properties },
-    { type: 'Feature', geometry: { type: 'Point', coordinates: mainEnd }, properties },
-    { type: 'Feature', geometry: { type: 'Point', coordinates: deflectedEnd }, properties },
+    {
+      geometry: { coordinates: start, type: 'Point' },
+      properties,
+      type: 'Feature',
+    },
+    {
+      geometry: { coordinates: mainEnd, type: 'Point' },
+      properties,
+      type: 'Feature',
+    },
+    {
+      geometry: { coordinates: deflectedEnd, type: 'Point' },
+      properties,
+      type: 'Feature',
+    },
   ];
 
   const lines: Segment = lineDefinitions.map((d) => ({
-    type: 'Feature',
-    geometry: { type: 'LineString', coordinates: d.coords },
+    geometry: { coordinates: d.coords, type: 'LineString' },
     properties: { ...properties, type: d.name },
+    type: 'Feature',
   }));
 
   const label: Segment = [
     {
-      type: 'Feature',
       geometry: centerPoint.geometry,
       properties: {
         ...properties,
         label: `${dist} km,
 az: ${az}° def: ${def}°`,
       },
+      type: 'Feature',
     },
   ];
 

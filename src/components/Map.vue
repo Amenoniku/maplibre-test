@@ -1,23 +1,26 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import { useSegments } from '@/composables/useSegments';
-import { useMap } from '@/composables/useMap';
-import type { StartPoint, SegmentProperties } from '@/types/types';
 import type { MapMouseEvent } from 'maplibre-gl';
+
+import { onMounted, ref, watch } from 'vue';
+
+import type { SegmentProperties, StartPoint } from '@/types/types';
+
+import { useMap } from '@/composables/useMap';
+import { useSegments } from '@/composables/useSegments';
 
 const mapContainer = ref<HTMLElement | null>(null);
 
 const {
-  formData,
   allFeatures,
+  cancelEditing,
+  deleteSegment,
+  formData,
+  handleFormSubmit,
   isEditing,
   isFormDirty,
-  startPoint,
-  handleFormSubmit,
-  cancelEditing,
-  startNewSegment,
   selectSegmentForEditing,
-  deleteSegment
+  startNewSegment,
+  startPoint,
 } = useSegments();
 
 const { map, mapService } = useMap(mapContainer, allFeatures);
@@ -29,17 +32,24 @@ const { map, mapService } = useMap(mapContainer, allFeatures);
  */
 const handleMapClick = (event: MapMouseEvent) => {
   const features = mapService.queryRenderedFeatures(event.point, [
-    'saved-line-layer', 'saved-point-layer', 'saved-labels-layer',
-    'editing-line-layer', 'editing-point-layer', 'editing-labels-layer'
+    'saved-line-layer',
+    'saved-point-layer',
+    'saved-labels-layer',
+    'editing-line-layer',
+    'editing-point-layer',
+    'editing-labels-layer',
   ]);
 
   if (features.length > 0 && features[0].properties) {
     selectSegmentForEditing(features[0].properties as SegmentProperties);
   } else {
     startNewSegment({
-      type: 'Feature',
-      geometry: { type: 'Point', coordinates: [event.lngLat.lng, event.lngLat.lat] },
+      geometry: {
+        coordinates: [event.lngLat.lng, event.lngLat.lat],
+        type: 'Point',
+      },
       properties: {},
+      type: 'Feature',
     } as StartPoint);
   }
 };
@@ -57,27 +67,43 @@ onMounted(() => {
 <template>
   <div class="map-container">
     <div ref="mapContainer" class="map" />
-    <form @submit.prevent="handleFormSubmit" class="segment-form">
+    <form class="segment-form" @submit.prevent="handleFormSubmit">
       <h3>{{ isEditing ? 'Редактирование' : 'Новый сегмент' }}</h3>
       <label>
         Расстояние (км):
-        <input type="number" v-model.number="formData.distance" min="0" />
+        <input v-model.number="formData.distance" type="number" min="0" />
       </label>
       <label>
         Азимут (°):
-        <input type="number" v-model.number="formData.azimuth" min="0" max="359" />
+        <input
+          v-model.number="formData.azimuth"
+          type="number"
+          min="0"
+          max="359"
+        />
       </label>
       <label>
         Отклонение (°):
-        <input type="number" v-model.number="formData.deflection" min="-180" max="180" />
+        <input
+          v-model.number="formData.deflection"
+          type="number"
+          min="-180"
+          max="180"
+        />
       </label>
 
-      <button v-if="!isEditing" type="submit" :disabled="!startPoint">Сохранить сегмент</button>
+      <button v-if="!isEditing" type="submit" :disabled="!startPoint">
+        Сохранить сегмент
+      </button>
 
       <div v-if="isEditing" class="editing-controls">
         <button type="button" @click="cancelEditing">Отменить</button>
-        <button class="delete-button" type="button" @click="deleteSegment">Удалить</button>
-        <button class="save-button" type="submit" :disabled="!isFormDirty">Сохранить</button>
+        <button class="delete-button" type="button" @click="deleteSegment">
+          Удалить
+        </button>
+        <button class="save-button" type="submit" :disabled="!isFormDirty">
+          Сохранить
+        </button>
       </div>
     </form>
   </div>
@@ -90,18 +116,18 @@ onMounted(() => {
 }
 
 .map {
-  border: 1px solid #ccc;
+  flex-shrink: 0;
   width: 1200px;
   height: 80vh;
-  flex-shrink: 0;
+  border: 1px solid #cccccc;
 }
 
 .segment-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  padding: 10px;
   min-width: 250px;
+  padding: 10px;
 
   h3 {
     margin-top: 0;
@@ -114,10 +140,10 @@ onMounted(() => {
   }
 
   input {
-    width: 100%;
     box-sizing: border-box;
+    width: 100%;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid #cccccc;
     border-radius: 4px;
   }
 
