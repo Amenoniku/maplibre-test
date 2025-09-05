@@ -10,13 +10,8 @@ import type {
   StartPoint,
 } from '@/types/types';
 
+import { DEFAULT_FORM_DATA } from '@/constants/segments';
 import { generateSegmentFeatures } from '@/services/segmentService';
-
-const DEFAULT_FORM_DATA: SegmentFormData = {
-  azimuth: 225,
-  deflection: 90,
-  distance: 500,
-};
 
 let segmentCounter = 0;
 const savedSegments = ref<Segment[]>([]);
@@ -62,7 +57,7 @@ export function useSegments() {
       formData.value.distance,
       formData.value.azimuth,
       formData.value.deflection,
-      {id: null, state: 'preview'}
+      { id: null, state: 'preview' },
     );
   });
 
@@ -81,7 +76,7 @@ export function useSegments() {
           formData.value.distance,
           formData.value.azimuth,
           formData.value.deflection,
-          {id: editingSegmentId.value, state: 'editing'}
+          { id: editingSegmentId.value, state: 'editing' },
         );
       }
       return segment.map((f) => ({
@@ -138,6 +133,9 @@ export function useSegments() {
     originalSegmentData.value = { ...data };
   };
 
+  /**
+   * Сохраняет новый сегмент.
+   */
   const saveNewSegment = () => {
     if (!startPoint.value) {
       return;
@@ -155,6 +153,9 @@ export function useSegments() {
     resetForm();
   };
 
+  /**
+   * Обновляет существующий сегмент.
+   */
   const updateExistingSegment = () => {
     const segmentIndex = savedSegments.value.findIndex(
       (seg) => seg[0]?.properties?.segmentId === editingSegmentId.value,
@@ -178,6 +179,9 @@ export function useSegments() {
     cancelEditing();
   };
 
+  /**
+   * Удаляет существующий сегмент.
+   */
   const deleteSegment = () => {
     if (
       editingSegmentId.value === null ||
