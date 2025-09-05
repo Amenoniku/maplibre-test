@@ -65,43 +65,71 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="map-container">
-    <div ref="mapContainer" class="map" />
+  <div class="map-widget">
+    <div ref="mapContainer" class="map-widget__map" />
     <form class="segment-form" @submit.prevent="handleFormSubmit">
-      <h3>{{ isEditing ? 'Редактирование' : 'Новый сегмент' }}</h3>
-      <label>
+      <h3 class="segment-form__title">
+        {{ isEditing ? 'Редактирование' : 'Новый сегмент' }}
+      </h3>
+      <label class="segment-form__label">
         Расстояние (км):
-        <input v-model.number="formData.distance" type="number" min="0" />
+        <input
+          v-model.number="formData.distance"
+          class="segment-form__input"
+          type="number"
+          min="0"
+        />
       </label>
-      <label>
+      <label class="segment-form__label">
         Азимут (°):
         <input
           v-model.number="formData.azimuth"
+          class="segment-form__input"
           type="number"
           min="0"
           max="359"
         />
       </label>
-      <label>
+      <label class="segment-form__label">
         Отклонение (°):
         <input
           v-model.number="formData.deflection"
+          class="segment-form__input"
           type="number"
           min="-180"
           max="180"
         />
       </label>
 
-      <button v-if="!isEditing" type="submit" :disabled="!startPoint">
+      <button
+        v-if="!isEditing"
+        class="segment-form__button"
+        type="submit"
+        :disabled="!startPoint"
+      >
         Сохранить сегмент
       </button>
 
-      <div v-if="isEditing" class="editing-controls">
-        <button type="button" @click="cancelEditing">Отменить</button>
-        <button class="delete-button" type="button" @click="deleteSegment">
+      <div v-if="isEditing" class="segment-form__controls">
+        <button
+          class="segment-form__button"
+          type="button"
+          @click="cancelEditing"
+        >
+          Отменить
+        </button>
+        <button
+          class="segment-form__button segment-form__button--delete"
+          type="button"
+          @click="deleteSegment"
+        >
           Удалить
         </button>
-        <button class="save-button" type="submit" :disabled="!isFormDirty">
+        <button
+          class="segment-form__button segment-form__button--save"
+          type="submit"
+          :disabled="!isFormDirty"
+        >
           Сохранить
         </button>
       </div>
@@ -110,16 +138,16 @@ onMounted(() => {
 </template>
 
 <style lang="scss" scoped>
-.map-container {
+.map-widget {
   display: flex;
   gap: 20px;
-}
 
-.map {
-  flex-shrink: 0;
-  width: 1200px;
-  height: 80vh;
-  border: 1px solid #cccccc;
+  &__map {
+    flex-shrink: 0;
+    width: 1200px;
+    height: 80vh;
+    border: 1px solid #cccccc;
+  }
 }
 
 .segment-form {
@@ -129,17 +157,17 @@ onMounted(() => {
   min-width: 250px;
   padding: 10px;
 
-  h3 {
+  &__title {
     margin-top: 0;
   }
 
-  label {
+  &__label {
     display: flex;
     flex-direction: column;
     gap: 5px;
   }
 
-  input {
+  &__input {
     box-sizing: border-box;
     width: 100%;
     padding: 8px;
@@ -147,27 +175,27 @@ onMounted(() => {
     border-radius: 4px;
   }
 
-  button {
+  &__button {
     margin-top: 5px;
-  }
 
-  .editing-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-
-    button {
-      flex: 1;
-    }
-
-    .delete-button {
+    &--delete {
       color: red;
       border-color: red;
     }
 
-    .save-button {
+    &--save {
       color: green;
       border-color: green;
+    }
+  }
+
+  &__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .segment-form__button {
+      flex: 1;
     }
   }
 }
