@@ -85,8 +85,7 @@ export const generateSegmentFeatures = (
       geometry: centerPoint.geometry,
       properties: {
         ...properties,
-        label: `${dist} km,
-az: ${az}° def: ${def}°`,
+        label: `${dist} km,\naz: ${az}° def: ${def}°`,
       },
       type: 'Feature',
     },
