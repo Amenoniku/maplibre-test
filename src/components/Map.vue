@@ -25,6 +25,8 @@ const {
 
 const { map, mapService } = useMap(mapContainer, allFeatures);
 
+const isLoading = ref(true);
+
 /**
  * Обрабатывает клики на карте для начала создания нового сегмента или
  * выбора существующего для редактирования.
@@ -57,6 +59,7 @@ const handleMapClick = (event: MapMouseEvent) => {
 onMounted(() => {
   const unwatch = watch(map, (newMap) => {
     if (newMap) {
+      isLoading.value = false;
       newMap.on('click', handleMapClick);
       unwatch();
     }
@@ -66,6 +69,9 @@ onMounted(() => {
 
 <template>
   <div class="map-widget">
+    <div v-if="isLoading" class="map-widget__loading-block">
+      Загрузка карты...
+    </div>
     <div ref="mapContainer" class="map-widget__map" />
     <form class="segment-form" @submit.prevent="handleFormSubmit">
       <h3 class="segment-form__title">
@@ -139,8 +145,26 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .map-widget {
+  position: relative;
   display: flex;
   gap: 20px;
+
+  &__loading-block,
+  &__map {
+    width: 1200px;
+    height: 80vh;
+  }
+
+  &__loading-block {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0, 0, 0, 0.8);
+    cursor: wait;
+  }
 
   &__map {
     flex-shrink: 0;
