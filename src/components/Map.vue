@@ -151,8 +151,8 @@ onMounted(() => {
 
   &__loading-block,
   &__map {
-    width: 1200px;
-    height: 80vh;
+    width: 100vw;
+    height: 100vh;
   }
 
   &__loading-block {
@@ -167,19 +167,22 @@ onMounted(() => {
   }
 
   &__map {
-    flex-shrink: 0;
-    width: 1200px;
-    height: 80vh;
-    border: 1px solid #cccccc;
+    :deep(.maplibregl-ctrl) {
+      display: none;
+    }
   }
 }
 
 .segment-form {
+  position: absolute;
+  bottom: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  min-width: 250px;
   padding: 10px;
+  background-color: var(--bg-color);
+  border-radius: 0 10px 0 0;
 
   &__title {
     margin-top: 0;
